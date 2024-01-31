@@ -1,0 +1,2 @@
+[codespell]
+skip = **/package-lock.json,trame_vtk3d/module/serve/*

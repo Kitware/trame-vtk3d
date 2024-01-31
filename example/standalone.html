@@ -1,0 +1,110 @@
+<!doctype html>
+  <body>
+    <canvas id="canvas" width="100%" height="100%"></canvas>
+    <script type="text/javascript" src="https://unpkg.com/@dicehub/vtk3d@0.0.114/vtk3d.js"></script>
+    <script type='text/javascript'>
+      var Module = {
+      canvas: (function() {
+        var canvas = document.getElementById('canvas');
+        // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+        // application robust, you may want to override this behavior before shipping!
+        // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+        canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+        return canvas;
+      })(),
+      onRuntimeInitialized:  function() {
+        var scene = new Module.Scene();
+        var cameraConfig = {
+          x: 0,
+          y: 0,
+          z: 10,
+          focal_point_x: 0, 
+          focal_point_y: 0,
+          focal_point_z: 0,
+          roll: 0,
+          view_up_x: 0,
+          view_up_y: 1,
+          view_up_z: 0,
+        }
+        var geometryConfig = {
+          bounding_box: {
+            type: 'BoxWidget',
+            min: {x: -1, y: -1, z: -1,},
+            max: {x: 0, y: 0, z: 0,},
+            color: '0xFFFFff',
+            edge_color: '0xFF0000',
+            opacity: 0.7,
+            representation: 'surface_with_edges',
+            interactive: false,
+          },
+          sample_stl: {
+            type: 'STLFile',
+            path: 'sample.stl',
+          }
+        }
+        var stl = `
+            solid cube_corner
+              facet normal 0.0 -1.0 0.0
+                outer loop
+                  vertex 0.0 0.0 0.0
+                  vertex 1.0 0.0 0.0
+                  vertex 0.0 0.0 1.0
+                endloop
+              endfacet
+              facet normal 0.0 0.0 -1.0
+                outer loop
+                  vertex 0.0 0.0 0.0
+                  vertex 0.0 1.0 0.0
+                  vertex 1.0 0.0 0.0
+                endloop
+              endfacet
+              facet normal -1.0 0.0 0.0
+                outer loop
+                  vertex 0.0 0.0 0.0
+                  vertex 0.0 0.0 1.0
+                  vertex 0.0 1.0 0.0
+                endloop
+              endfacet
+              facet normal 0.577 0.577 0.577
+                outer loop
+                  vertex 1.0 0.0 0.0
+                  vertex 0.0 1.0 0.0
+                  vertex 0.0 0.0 1.0
+                endloop
+              endfacet
+            endsolid`;
+
+        var target = null;
+        scene.setCallback((event, value) => {
+					if (event === 'geometry') {
+						const info = JSON.parse(value)
+						if (info.object === 'bounding_box' & info.event === 'modified') {
+            	const [minmax, key] = info.info.property.split('/')
+            	geometryConfig.bounding_box[minmax][key] = info.info.value
+              scene.updateGeometry(geometryConfig);
+            }
+          }
+        	if (event === 'clicked') {
+            const info = JSON.parse(value)
+						if (info.object === 'bounding_box' & !geometryConfig.bounding_box.interactive) {
+            	geometryConfig.bounding_box.interactive = true;
+              scene.updateGeometry(geometryConfig);
+            } else if (info.object !== 'bounding_box' & geometryConfig.bounding_box.interactive) {
+            	geometryConfig.bounding_box.interactive = false;
+              scene.updateGeometry(geometryConfig);
+            }
+          }
+        });
+        Module.FS.mkdir('/data');
+        Module.FS.writeFile('/data/sample.stl', stl);
+        scene.setPathPrefix('/data/');
+        scene.updateCamera(cameraConfig);
+        scene.updateGeometry(geometryConfig);
+        scene.resetCamera();
+        scene.start();
+      },
+    };
+    var vtk = vtk3d(Module);
+  </script>
+</body>
+</html>
