@@ -1,0 +1,37 @@
+unstructured_grid:
+    geometry:
+        clip:
+            type: ClipFilter
+            origin: [-0.003385970688, -0.0025, -0.01074993]
+            normal: [1, 0, 0]
+            color: "0x00DD00"
+            # color_field: T_Points
+            crinkle: false
+            inside_out: false
+            active: true
+    isBoundary: false
+    visible: true
+    path: data.vtu
+    type: VTUFile
+    edge_color: "0x000000"
+    color: "0x000000"
+    representation: wireframe
+    opacity: 1
+
+bounding_box:
+    type: BoxWidget
+    min:
+        "x": -0.0260093
+        "y": -0.0275
+        "z": -0.02375
+    max:
+        "x": 0.0260093
+        "y": 0.0225
+        "z": 0.00225014
+
+    color: "0xFFFFff"
+    edge_color: "0xFF0000"
+    opacity: 0.7
+    representation: "surface_with_edges"
+    interactive: true
+    visible: false

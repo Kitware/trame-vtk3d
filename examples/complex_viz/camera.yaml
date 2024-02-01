@@ -1,0 +1,22 @@
+position:
+  x: -20.12018081
+  y: 15.81435101
+  z: 37.00620691
+focal_point:
+  x: 5
+  y: 0
+  z: 3.999924165
+view_up:
+  x: 0.2401149403
+  y: 0.9339476242
+  z: -0.2647388348
+roll: 1.76151579
+rotation_center:
+  location:
+    x: 0
+    y: 0
+    z: 0
+  visible: false
+  reset: true
+parallel_projection: false
+parallel_scale: 1.0
