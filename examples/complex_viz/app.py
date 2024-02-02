@@ -1,4 +1,5 @@
 import yaml
+import json
 from yaml import Loader
 from pathlib import Path
 
@@ -51,14 +52,25 @@ class DataApp:
     def reset_camera(self):
         self.wasm.scene.resetCamera()
 
-    # def _scene_update_geometry(self, info):
-    #     print("_scene_update_geometry", info)
-    #     info = json.loads(info)
-    #     if info["object"] == "unstructured_grid/geometry/clip" and info["event"] == "modified":
-    #         [_, prop, axis] = info["info"]["property"].split("/")
-    #         axis_idx = ['x', 'y', 'z'].index(axis)
-    #         # save actual editor values to geometry data to use it on next update or use when apply changes to filter
-    #         self.state.geometry["unstructured_grid"]["geometry"]["clip"]["editor"][prop][axis_idx] = info["info"]["value"]
+    def _scene_update_geometry(self, info):
+        info = json.loads(info)
+        if (
+            info["object"] == "unstructured_grid/geometry/clip"
+            and info["event"] == "modified"
+        ):
+            [_, prop, axis] = info["info"]["property"].split("/")
+            axis_idx = ["x", "y", "z"].index(axis)
+            # save actual editor values to geometry data to use it on next update or use when apply changes to filter
+            self.state.geometry["unstructured_grid"]["geometry"]["clip"]["editor"][
+                prop
+            ][axis_idx] = info["info"]["value"]
+
+        elif (
+            info["object"] == "bounding_box"
+            and info["event"] == "modified"
+            and info["info"]["property"] == "max/x"
+        ):
+            self.state.x_clip = info["info"]["value"]
 
     def apply_clip(self):
         print("apply")
@@ -115,7 +127,7 @@ class DataApp:
                         ),
                         on_ready=self.init_scene,
                         on_char="if ($event === 'R') $refs.vtk_wasm.scene.resetCamera()",
-                        # on_geometry=(self._scene_update_geometry, "[$event]"),
+                        on_geometry=(self._scene_update_geometry, "[$event]"),
                         # on_camera="console.log($event)",
                     )
 
