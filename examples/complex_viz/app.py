@@ -33,18 +33,13 @@ class DataApp:
         self.wasm.update()
         self.wasm.reset_camera()
 
-    @change("opacity")
-    def on_opacity_change(self, opacity, **kwargs):
+    @change("x_clip")
+    def on_clip_change(self, x_clip, **kwargs):
         if self.wasm is not None:
-            self.state.geometry["unstructured_grid"]["geometry"]["clip"][
-                "opacity"
-            ] = opacity
-            self.state.geometry["unstructured_grid"]["geometry"]["clip"]["color"] = (
-                "0xDD0000" if opacity < 0.5 else "0x00DD00"
-            )
-            self.state.geometry["unstructured_grid"]["geometry"]["clip"][
-                "inside_out"
-            ] = (opacity < 0.5)
+            self.state.geometry["unstructured_grid"]["geometry"]["clip"]["editor"][
+                "origin"
+            ][0] = x_clip
+            self.state.geometry["bounding_box"]["max"]["x"] = x_clip
             self.state.dirty("geometry")
 
     @change("bbox_visible")
@@ -55,6 +50,27 @@ class DataApp:
 
     def reset_camera(self):
         self.wasm.scene.resetCamera()
+
+    # def _scene_update_geometry(self, info):
+    #     print("_scene_update_geometry", info)
+    #     info = json.loads(info)
+    #     if info["object"] == "unstructured_grid/geometry/clip" and info["event"] == "modified":
+    #         [_, prop, axis] = info["info"]["property"].split("/")
+    #         axis_idx = ['x', 'y', 'z'].index(axis)
+    #         # save actual editor values to geometry data to use it on next update or use when apply changes to filter
+    #         self.state.geometry["unstructured_grid"]["geometry"]["clip"]["editor"][prop][axis_idx] = info["info"]["value"]
+
+    def apply_clip(self):
+        print("apply")
+        for prop in ("origin", "normal"):
+            for i in range(3):
+                value = self.state.geometry["unstructured_grid"]["geometry"]["clip"][
+                    "editor"
+                ][prop][i]
+                self.state.geometry["unstructured_grid"]["geometry"]["clip"][prop][
+                    i
+                ] = value
+        self.server.force_state_push("geometry")
 
     def create_ui(self):
         with SinglePageLayout(self.server) as layout:
@@ -67,12 +83,15 @@ class DataApp:
                     hide_details=True,
                 )
                 vuetify.VSlider(
-                    v_model=("opacity", 1),
-                    min=0.01,
-                    max=1,
-                    step=0.01,
+                    v_model=("x_clip", 0),
+                    min=-0.0260093,
+                    max=0.0260093,
+                    step=0.0001,
                     dense=True,
                     hide_details=True,
+                    change=self.apply_clip,
+                    start="bbox_visible = true",
+                    end="bbox_visible = false",
                 )
                 with vuetify.VBtn(click=self.reset_camera, icon=True):
                     vuetify.VIcon("mdi-crop-free")
@@ -96,6 +115,7 @@ class DataApp:
                         ),
                         on_ready=self.init_scene,
                         on_char="if ($event === 'R') $refs.vtk_wasm.scene.resetCamera()",
+                        # on_geometry=(self._scene_update_geometry, "[$event]"),
                         # on_camera="console.log($event)",
                     )
 

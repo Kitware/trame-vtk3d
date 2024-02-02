@@ -2,13 +2,18 @@ unstructured_grid:
     geometry:
         clip:
             type: ClipFilter
-            origin: [-0.003385970688, -0.0025, -0.01074993]
+            origin: [0, -0.0025, -0.01074993]
             normal: [1, 0, 0]
             color: "0x00DD00"
             # color_field: T_Points
             crinkle: false
-            inside_out: false
+            inside_out: true
             active: true
+            editor:
+              origin: [0, -0.0025, -0.01074993]
+              normal: [1, 0, 0]
+              crinkle: false
+              inside_out: true
     isBoundary: false
     visible: true
     path: data.vtu
@@ -21,13 +26,13 @@ unstructured_grid:
 bounding_box:
     type: BoxWidget
     min:
-        "x": -0.0260093
-        "y": -0.0275
-        "z": -0.02375
+        x: -0.0260093
+        y: -0.0275
+        z: -0.02375
     max:
-        "x": 0.0260093
-        "y": 0.0225
-        "z": 0.00225014
+        x: 0.0260093
+        y: 0.0225
+        z: 0.00225014
 
     color: "0xFFFFff"
     edge_color: "0xFF0000"
