@@ -4,6 +4,8 @@ trame-vtk3d
 
 Trame wrapper to WASM bundle of VTK from `dicehub <https://dicehub.com/welcome>`_
 
+.. image:: vtk3d.png
+
 License
 ---------------------
 
