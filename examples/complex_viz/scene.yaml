@@ -17,6 +17,7 @@ unstructured_grid:
             crinkle: false
             inside_out: true
             active: true
+            opacity: 0.99
             editor:
               origin: 
                 x: 0
@@ -28,25 +29,54 @@ unstructured_grid:
                 z: 0
               crinkle: false
               inside_out: true
+            representation: surface
+        clip2:
+            type: ClipFilter
+            origin: 
+                x: 0
+                y: -0.0025
+                z: -0.01074993
+            normal: 
+                x: 1
+                y: 0
+                z: 0
+            crinkle: false
+            inside_out: false
+            active: true
+            opacity: 0.5
+            editor:
+              origin: 
+                x: 0
+                y: -0.0025
+                z: -0.01074993
+              normal: 
+                x: 1
+                y: 0
+                z: 0
+              crinkle: false
+              inside_out: true
+            edge_color: "0x000000"
+            color: "0xFFFFFF"
+            representation: surface_with_edges
     isBoundary: false
-    visible: true
+    visible: false
     path: data.vtu
     type: VTUFile
     edge_color: "0x000000"
-    color: "0x000000"
-    representation: wireframe
-    opacity: 1
+    color: "0xFFFFFF"
+    representation: surface_with_edges
+    opacity: 0.25
 
 bounding_box:
     type: BoxWidget
     min:
         x: -0.0260093
-        y: -0.0275
-        z: -0.02375
+        y: -0.028
+        z: -0.024
     max:
         x: 0.0260093
-        y: 0.0225
-        z: 0.00225014
+        y: 0.023
+        z: 0.0023
 
     color: "0xFFFFff"
     edge_color: "0xFF0000"

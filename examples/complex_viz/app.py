@@ -47,13 +47,16 @@ class DataApp:
                     self.apply_clip()
 
     @change("x_clip")
-    def on_clip_change(self, x_clip, **kwargs):
+    def on_clip_change(self, x_clip, auto_apply, **kwargs):
         if self.wasm is not None:
             self.state.geometry["unstructured_grid"]["geometry"]["clip"]["editor"][
                 "origin"
             ]["x"] = x_clip
             self.state.geometry["bounding_box"]["max"]["x"] = x_clip
             self.state.dirty("geometry")
+
+            if auto_apply:
+                self.apply_clip()
 
     @change("bbox_visible")
     def on_bbox_visible_change(self, bbox_visible, **kwargs):
@@ -95,6 +98,9 @@ class DataApp:
                 self.state.geometry["unstructured_grid"]["geometry"]["clip"][prop][
                     i
                 ] = value
+                self.state.geometry["unstructured_grid"]["geometry"]["clip2"][prop][
+                    i
+                ] = value
         self.server.force_state_push("geometry")
 
     def create_ui(self):
@@ -103,9 +109,17 @@ class DataApp:
                 vuetify.VToolbarTitle("Interactive Client/Server example")
                 vuetify.VSpacer()
                 vuetify.VSwitch(
+                    label="Interactive apply",
+                    v_model=("auto_apply", False),
+                    dense=True,
+                    hide_details=True,
+                )
+                vuetify.VSwitch(
+                    label="Widget",
                     v_model=("bbox_visible", False),
                     dense=True,
                     hide_details=True,
+                    classes="mx-3",
                 )
                 vuetify.VSlider(
                     v_model=("x_clip", 0),
