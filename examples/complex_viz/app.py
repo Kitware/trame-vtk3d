@@ -100,7 +100,7 @@ class DataApp:
     def create_ui(self):
         with SinglePageLayout(self.server) as layout:
             with layout.toolbar.clear():
-                vuetify.VToolbarTitle("vtkUnstructuredGrid")
+                vuetify.VToolbarTitle("Interactive Client/Server example")
                 vuetify.VSpacer()
                 vuetify.VSwitch(
                     v_model=("bbox_visible", False),
