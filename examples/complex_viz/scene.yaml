@@ -2,16 +2,30 @@ unstructured_grid:
     geometry:
         clip:
             type: ClipFilter
-            origin: [0, -0.0025, -0.01074993]
-            normal: [1, 0, 0]
-            color: "0x00DD00"
-            # color_field: T_Points
+            color_array:
+                name: T
+                color_map: jet
+                field_association: Points
+            origin: 
+                x: 0
+                y: -0.0025
+                z: -0.01074993
+            normal: 
+                x: 1
+                y: 0
+                z: 0
             crinkle: false
             inside_out: true
             active: true
             editor:
-              origin: [0, -0.0025, -0.01074993]
-              normal: [1, 0, 0]
+              origin: 
+                x: 0
+                y: -0.0025
+                z: -0.01074993
+              normal: 
+                x: 1
+                y: 0
+                z: 0
               crinkle: false
               inside_out: true
     isBoundary: false
@@ -40,3 +54,8 @@ bounding_box:
     representation: "surface_with_edges"
     interactive: true
     visible: false
+bar:
+    type: ScalarBar
+    name: T
+    field_association: Points
+    color_map: jet

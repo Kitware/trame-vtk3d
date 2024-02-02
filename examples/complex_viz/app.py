@@ -1,9 +1,10 @@
+import asyncio
 import yaml
 import json
 from yaml import Loader
 from pathlib import Path
 
-from trame.app import get_server
+from trame.app import get_server, asynchronous
 from trame.ui.vuetify import SinglePageLayout
 from trame.widgets import vuetify, vtk3d
 from trame.decorators import TrameApp, change
@@ -11,7 +12,7 @@ from trame.decorators import TrameApp, change
 VTU_FILE = Path(__file__).with_name("data.vtu")
 
 SCENE_FILE = Path(__file__).with_name("scene.yaml")
-COLOR_FILE = Path(__file__).with_name("colors.yaml")
+COLOR_FILE = Path(__file__).with_name("ColorMaps.json")
 CAMERA_FILE = Path(__file__).with_name("camera.yaml")
 
 
@@ -20,6 +21,9 @@ class DataApp:
     def __init__(self, server=None):
         self.server = get_server(server, client_type="vue2")
         self.ui = self.create_ui()
+        self.last_change = 0
+        self.last_apply = 0
+        asynchronous.create_task(self.auto_apply())
 
     @property
     def state(self):
@@ -34,12 +38,20 @@ class DataApp:
         self.wasm.update()
         self.wasm.reset_camera()
 
+    async def auto_apply(self):
+        while True:
+            await asyncio.sleep(0.5)
+            if self.last_change > self.last_apply:
+                with self.state:
+                    self.last_apply = self.last_change
+                    self.apply_clip()
+
     @change("x_clip")
     def on_clip_change(self, x_clip, **kwargs):
         if self.wasm is not None:
             self.state.geometry["unstructured_grid"]["geometry"]["clip"]["editor"][
                 "origin"
-            ][0] = x_clip
+            ]["x"] = x_clip
             self.state.geometry["bounding_box"]["max"]["x"] = x_clip
             self.state.dirty("geometry")
 
@@ -47,6 +59,7 @@ class DataApp:
     def on_bbox_visible_change(self, bbox_visible, **kwargs):
         if self.wasm is not None:
             self.state.geometry["bounding_box"]["visible"] = bbox_visible
+            self.state.geometry["bounding_box"]["interactive"] = bbox_visible
             self.state.dirty("geometry")
 
     def reset_camera(self):
@@ -71,11 +84,11 @@ class DataApp:
             and info["info"]["property"] == "max/x"
         ):
             self.state.x_clip = info["info"]["value"]
+            self.last_change += 1
 
     def apply_clip(self):
-        print("apply")
         for prop in ("origin", "normal"):
-            for i in range(3):
+            for i in ("x", "y", "z"):
                 value = self.state.geometry["unstructured_grid"]["geometry"]["clip"][
                     "editor"
                 ][prop][i]
@@ -123,7 +136,7 @@ class DataApp:
                         ),
                         color_maps=(
                             "colors",
-                            yaml.load(COLOR_FILE.read_text(), Loader=Loader),
+                            json.loads(COLOR_FILE.read_text()),
                         ),
                         on_ready=self.init_scene,
                         on_char="if ($event === 'R') $refs.vtk_wasm.scene.resetCamera()",
